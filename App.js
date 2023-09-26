@@ -1,20 +1,30 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { useFonts } from "expo-font";
+import { StatusBar } from "expo-status-bar";
+import { StyleSheet } from "react-native";
+import { PaperProvider } from "react-native-paper";
+import { Provider } from "react-redux";
+
+import MainStackScreen from "./src/navigation/ParentRoute";
+import { store } from "./src/reduxt-toolkit/store/store";
 
 export default function App() {
+  const [fontsLoaded, error] = useFonts({
+    "poppins-bold": require("./assets/fonts/PoppinsBold.ttf"),
+    "poppins-medium": require("./assets/fonts/PoppinsMedium.ttf"),
+  });
+
+  if (!fontsLoaded && !error) {
+    return null;
+  }
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <>
+      <Provider store={store}>
+        <PaperProvider>
+          <StatusBar style="auto" backgroundColor="" />
+          <MainStackScreen />
+        </PaperProvider>
+      </Provider>
+    </>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

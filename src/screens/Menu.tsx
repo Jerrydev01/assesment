@@ -172,6 +172,7 @@ const Menu = ({ navigation }: Props) => {
                     />
                   </View>
                   <Text
+                    className="text-[14px]"
                     style={{
                       color: "white",
                       fontFamily: globalStyles.poppinsMedium,

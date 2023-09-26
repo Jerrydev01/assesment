@@ -28,7 +28,7 @@ type Props = {
 
 const Cart = ({ navigation }: Props) => {
   const cartItems = useSelector((state: any) => state.cart);
-  console.log("🚀 ~ file: Menu.tsx:31 ~ Menu ~ cartItems:", cartItems);
+
   const dispatch = useDispatch();
   const total = cartItems.reduce((total: any, item: any) => {
     const itemPrice = item.price; // Use promoPrice if available, otherwise use the regular price
@@ -59,123 +59,137 @@ const Cart = ({ navigation }: Props) => {
           navigation={navigation}
         />
       </View>
-      <ScrollView
-        contentContainerStyle={{
-          paddingBottom: 100,
-          paddingTop: 20,
-        }}
-      >
-        <View
-          className=" flex gap-y-5"
-          style={{ paddingHorizontal: globalStyles.paddingInline }}
+      {cartItems.length > 0 ? (
+        <ScrollView
+          contentContainerStyle={{
+            paddingBottom: 100,
+            paddingTop: 20,
+          }}
         >
-          {cartItems.map((cartItem) => {
-            return (
-              <View
-                key={cartItem.id}
-                className="flex-row justify-between items-center"
-              >
-                <TouchableOpacity
-                  onPress={() => {
-                    navigation.navigate("IndividualProduct", {
-                      id: cartItem.id,
-                    });
-                  }}
-                  className="flex-row flex-auto gap-x-2 "
+          <View
+            className=" flex gap-y-5"
+            style={{ paddingHorizontal: globalStyles.paddingInline }}
+          >
+            {cartItems.map((cartItem) => {
+              return (
+                <View
+                  key={cartItem.id}
+                  className="flex-row justify-between items-center"
                 >
-                  <View className="rounded-[8px] bg-white  p-1 ">
-                    <Image
-                      source={cartItem.image}
-                      resizeMode="contain"
-                      className="w-[90px] h-[90px] "
-                    />
-                  </View>
-                  <View className="flex justify-between flex-auto">
-                    <Text
-                      className="text-[15px]"
-                      style={{ fontFamily: globalStyles.poppinsBold }}
+                  <TouchableOpacity
+                    onPress={() => {
+                      navigation.navigate("IndividualProduct", {
+                        id: cartItem.id,
+                      });
+                    }}
+                    className="flex-row flex-auto gap-x-2 "
+                  >
+                    <View className="rounded-[8px] bg-white  p-1 ">
+                      <Image
+                        source={cartItem.image}
+                        resizeMode="contain"
+                        className="w-[90px] h-[90px] "
+                      />
+                    </View>
+                    <View className="flex justify-between flex-auto">
+                      <Text
+                        className="text-[15px]"
+                        style={{ fontFamily: globalStyles.poppinsBold }}
+                      >
+                        {cartItem.name.length > 10
+                          ? cartItem.name.substring(0, 10) + "..."
+                          : cartItem.name}
+                      </Text>
+                      <Text
+                        className="text-[15px]"
+                        style={{
+                          fontFamily: globalStyles.poppinsMedium,
+                          color: globalStyles.primaryColor,
+                        }}
+                      >
+                        {formatCurrency(cartItem.price, "GBP")}
+                      </Text>
+                      <TouchableOpacity
+                        onPress={() => handleRemoveCartitems(cartItem.id)}
+                      >
+                        <Feather name="trash-2" size={24} color="black" />
+                      </TouchableOpacity>
+                    </View>
+                  </TouchableOpacity>
+                  <View
+                    style={{ paddingHorizontal: globalStyles.paddingInline }}
+                    className="flex justify-between gap-y-1 items-center"
+                  >
+                    <Pressable
+                      onPress={() => handleDecreaseQuantity(cartItem.id)}
+                      className="bg-white p-[6px] rounded-[8px]"
                     >
-                      {cartItem.name.length > 10
-                        ? cartItem.name.substring(0, 10) + "..."
-                        : cartItem.name}
-                    </Text>
+                      <Entypo
+                        name="minus"
+                        size={20}
+                        color={cartItem.quantity === 0 ? "gray" : "black"}
+                      />
+                    </Pressable>
                     <Text
-                      className="text-[15px]"
                       style={{
                         fontFamily: globalStyles.poppinsMedium,
-                        color: globalStyles.primaryColor,
                       }}
+                      className="text-[15px]"
                     >
-                      {formatCurrency(cartItem.price, "GBP")}
+                      {cartItem.quantity}
                     </Text>
-                    <TouchableOpacity
-                      onPress={() => handleRemoveCartitems(cartItem.id)}
+                    <Pressable
+                      onPress={() => handleIncreaseQuantity(cartItem)}
+                      className="bg-white p-[6px] rounded-[8px]"
                     >
-                      <Feather name="trash-2" size={24} color="black" />
-                    </TouchableOpacity>
+                      <Entypo name="plus" size={20} color="black" />
+                    </Pressable>
                   </View>
-                </TouchableOpacity>
-                <View
-                  style={{ paddingHorizontal: globalStyles.paddingInline }}
-                  className="flex justify-between gap-y-1 items-center"
-                >
-                  <Pressable
-                    onPress={() => handleDecreaseQuantity(cartItem.id)}
-                    className="bg-white p-[6px] rounded-[8px]"
-                  >
-                    <Entypo
-                      name="minus"
-                      size={20}
-                      color={cartItem.quantity === 0 ? "gray" : "black"}
-                    />
-                  </Pressable>
-                  <Text
-                    style={{
-                      fontFamily: globalStyles.poppinsMedium,
-                    }}
-                    className="text-[15px]"
-                  >
-                    {cartItem.quantity}
-                  </Text>
-                  <Pressable
-                    onPress={() => handleIncreaseQuantity(cartItem)}
-                    className="bg-white p-[6px] rounded-[8px]"
-                  >
-                    <Entypo name="plus" size={20} color="black" />
-                  </Pressable>
                 </View>
-              </View>
-            );
-          })}
-          <View className="pt-5 flex-row justify-between">
-            <Text style={{ fontFamily: globalStyles.poppinsBold }}>
-              Total{" "}
-              <Text className="text-gray-700 text-[15px]">
-                {" "}
-                ({totalCartQuantity} items )
+              );
+            })}
+            <View className="pt-5 flex-row justify-between">
+              <Text style={{ fontFamily: globalStyles.poppinsBold }}>
+                Total{" "}
+                <Text className="text-gray-700 text-[15px]">
+                  {" "}
+                  ({totalCartQuantity} items )
+                </Text>
               </Text>
-            </Text>
-            <Text
-              className="text-[15px]"
-              style={{
-                fontFamily: globalStyles.poppinsBold,
-                color: globalStyles.primaryColor,
-              }}
-            >
-              {formatCurrency(total, "GBP")}
-            </Text>
+              <Text
+                className="text-[15px]"
+                style={{
+                  fontFamily: globalStyles.poppinsBold,
+                  color: globalStyles.primaryColor,
+                }}
+              >
+                {formatCurrency(total, "GBP")}
+              </Text>
+            </View>
+            <ButtonComponent
+              bgColor={"#DB3C25"}
+              borderColor="#DB3C25"
+              disable={false}
+              color="white"
+              title={`Checkout - ${formatCurrency(total, "GBP")}`}
+              borderWidth={0}
+              buttonAction={() => {}}
+            />
           </View>
-          <ButtonComponent
-            bgColor={"#DB3C25"}
-            borderColor="#DB3C25"
-            disable={false}
-            color="white"
-            title={`Checkout - ${formatCurrency(total, "GBP")}`}
-            borderWidth={0}
-            buttonAction={() => {}}
-          />
+        </ScrollView>
+      ) : (
+        <View className="m-auto flex-1 mt-[100px]">
+          <Text
+            className="text-center"
+            style={{
+              fontFamily: globalStyles.poppinsBold,
+              fontSize: 18,
+            }}
+          >
+            No items in cart
+          </Text>
         </View>
-      </ScrollView>
+      )}
     </SafeAreaView>
   );
 };

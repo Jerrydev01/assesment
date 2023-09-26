@@ -1,4 +1,4 @@
-import { AntDesign, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import React, { useState } from "react";
 import {
@@ -10,6 +10,7 @@ import {
   useColorScheme,
 } from "react-native";
 
+import { useSelector } from "react-redux";
 import { globalStyles } from "../../constant/globalStyles";
 import { darkTheme, lightTheme } from "../../constant/themeStyle";
 import { menuTabs } from "../../dummData/menuTapData";
@@ -17,8 +18,12 @@ const Tab = createBottomTabNavigator();
 
 const BottomNavBar = ({ navigation }) => {
   const [active, setActive] = useState("Home");
-
+  const cartItems = useSelector((state) => state.cart);
   const colorScheme = useColorScheme();
+  const totalCartQuantity = cartItems.reduce(
+    (total, item) => total + item.quantity,
+    0
+  );
 
   const themeTextStyle =
     colorScheme === "light" ? lightTheme.textColor : darkTheme.textColor;
@@ -106,6 +111,19 @@ const BottomNavBar = ({ navigation }) => {
                         {label}
                       </Text>
                     </View>
+                    {label === "cart" ? (
+                      <View className="absolute -top-3 -right-2 z-50 p-[2px]">
+                        <Text
+                          style={{
+                            fontFamily: globalStyles.poppinsBold,
+                            color: globalStyles.primaryColor,
+                          }}
+                          className="text-white text-[14px] text-center"
+                        >
+                          {totalCartQuantity === 0 ? "" : totalCartQuantity}{" "}
+                        </Text>
+                      </View>
+                    ) : null}
                   </View>
                 )}
               </TouchableOpacity>

@@ -179,6 +179,7 @@ const Menu = ({ navigation }: Props) => {
                     }}
                     onPress={() => {
                       handleIncreaseQuantity(item);
+                      // navigation
                     }}
                   >
                     Add to cart

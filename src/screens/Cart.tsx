@@ -1,5 +1,5 @@
 import { Entypo, Feather } from "@expo/vector-icons";
-import React from "react";
+import React, { useEffect } from "react";
 
 import {
   Image,
@@ -14,8 +14,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
 import ButtonComponent from "../component/common/ButtonComponent";
 import HeaderComponent from "../component/common/Header";
+import { showToast } from "../constant/ShowToast";
 import { formatCurrency } from "../constant/currencyFormatter";
 import { globalStyles } from "../constant/globalStyles";
+import {
+  loadCartItemsFromAsyncStorage,
+  saveCartItemsToAsyncStorage,
+} from "../reduxt-toolkit/slices/cartApiSlice";
 import {
   addToCart,
   decreaseQuantity,
@@ -28,6 +33,7 @@ type Props = {
 
 const Cart = ({ navigation }: Props) => {
   const cartItems = useSelector((state: any) => state.cart);
+  const updatedCart = useSelector((state: any) => state.cart);
 
   const dispatch = useDispatch();
   const total = cartItems.reduce((total: any, item: any) => {
@@ -40,16 +46,34 @@ const Cart = ({ navigation }: Props) => {
     0
   );
 
-  const handleRemoveCartitems = (id: any) => {
-    dispatch(removeFromCart(id));
+  // Load cart items from AsyncStorage when the component mounts
+  useEffect(() => {
+    dispatch(loadCartItemsFromAsyncStorage() as any);
+  }, [dispatch]);
+
+  // Add an item to the cart and save it to AsyncStorage
+  const handleIncreaseQuantity = (item: any) => {
+    dispatch(addToCart(item));
+    const updatedCart = [...cartItems, item];
+    dispatch(saveCartItemsToAsyncStorage(updatedCart) as any);
   };
 
-  const handleDecreaseQuantity = (id: any) => {
-    dispatch(decreaseQuantity(id));
+  // Remove an item from the cart and update AsyncStorage
+  const handleRemoveCartitems = (itemId: any) => {
+    dispatch(removeFromCart(itemId));
+    const updatedCart = cartItems.filter((item: any) => item.id !== itemId);
+    dispatch(saveCartItemsToAsyncStorage(updatedCart) as any);
   };
-  const handleIncreaseQuantity = (id: any) => {
-    dispatch(addToCart(id));
+
+  // Decrease quantity of an item in the cart and update AsyncStorage
+  const handleDecreaseQuantity = (itemId: any) => {
+    // Decrease the quantity in the Redux store
+    dispatch(decreaseQuantity(itemId));
+    // Get the updated cart from the Redux store
+    // Save the updated cart to AsyncStorage
+    dispatch(saveCartItemsToAsyncStorage(updatedCart) as any);
   };
+
   return (
     <SafeAreaView className="flex-1">
       <View className="border-b border-gray-300">
@@ -121,7 +145,10 @@ const Cart = ({ navigation }: Props) => {
                     className="flex justify-between gap-y-1 items-center"
                   >
                     <Pressable
-                      onPress={() => handleDecreaseQuantity(cartItem.id)}
+                      onPress={() => {
+                        handleDecreaseQuantity(cartItem.id);
+                        showToast("Item removed to cart", "white", "red");
+                      }}
                       className="bg-white p-[6px] rounded-[8px]"
                     >
                       <Entypo
@@ -139,7 +166,10 @@ const Cart = ({ navigation }: Props) => {
                       {cartItem.quantity}
                     </Text>
                     <Pressable
-                      onPress={() => handleIncreaseQuantity(cartItem)}
+                      onPress={() => {
+                        handleIncreaseQuantity(cartItem);
+                        showToast("Item added to cart", "white", "black");
+                      }}
                       className="bg-white p-[6px] rounded-[8px]"
                     >
                       <Entypo name="plus" size={20} color="black" />
@@ -178,7 +208,7 @@ const Cart = ({ navigation }: Props) => {
           </View>
         </ScrollView>
       ) : (
-        <View className="m-auto flex-1 mt-[100px]">
+        <View className=" flex-1 justify-center">
           <Text
             className="text-center"
             style={{
@@ -188,6 +218,19 @@ const Cart = ({ navigation }: Props) => {
           >
             No items in cart
           </Text>
+          <TouchableOpacity className="pt-5 px-8">
+            <ButtonComponent
+              bgColor={"#DB3C25"}
+              borderColor="#DB3C25"
+              disable={false}
+              color="white"
+              title="Continue Shopping"
+              borderWidth={0}
+              buttonAction={() => {
+                navigation.navigate("MenuIndex");
+              }}
+            />
+          </TouchableOpacity>
         </View>
       )}
     </SafeAreaView>

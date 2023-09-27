@@ -9,6 +9,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,6 +22,7 @@ import {
   decreaseQuantity,
   removeFromCart,
 } from "../reduxt-toolkit/slices/cartSlice";
+import { showToast } from "../constant/ShowToast";
 
 type Props = {
   navigation: any;
@@ -33,6 +35,10 @@ const Menu = ({ navigation }: Props) => {
   // Calculate the width for each column
 
   const dispatch = useDispatch();
+  const windowWidth = useWindowDimensions().width; // Get the screen width
+
+  // Calculate the number of columns dynamically
+  const numColumns = windowWidth >= 600 ? 3 : 2; // You can adjust the breakpoint as needed
 
   // Filtering function
   const filteredProducts = productData.filter((item: ProductProps) =>
@@ -79,6 +85,9 @@ const Menu = ({ navigation }: Props) => {
         </View>
         <TextInput
           placeholder="Search"
+          style={{
+            fontFamily: globalStyles.poppinsMedium,
+          }}
           className="py-[6px] text-[15px] pl-[70px] pr-[10px] border border-gray-300 rounded-[8px] bg-white"
           onChangeText={(text) => setSearchQuery(text)}
           value={searchQuery}
@@ -103,7 +112,7 @@ const Menu = ({ navigation }: Props) => {
                   id: item.id,
                 });
               }}
-              className="flex-auto mb-[16px] pt-[15px] pb-[11px] rounded-[8px]"
+              className="w-1/2 flex-auto mb-[16px] pt-[15px] pb-[11px] rounded-[8px]"
             >
               <TouchableOpacity
                 onPress={() => {
@@ -120,7 +129,7 @@ const Menu = ({ navigation }: Props) => {
               </TouchableOpacity>
               {/* Add other content for your list item here */}
               <Image
-                className="py-[8px]"
+                className="py-[8px] border"
                 alt={item.name}
                 source={item.image}
                 resizeMode="contain"
@@ -179,6 +188,7 @@ const Menu = ({ navigation }: Props) => {
                     }}
                     onPress={() => {
                       handleIncreaseQuantity(item);
+                      showToast('Item added to cart', 'white', 'black');
                       // navigation
                     }}
                   >
@@ -196,7 +206,7 @@ const Menu = ({ navigation }: Props) => {
           paddingBottom: 20,
           marginTop: 16,
         }}
-        numColumns={2}
+        numColumns={numColumns} // Use the dynamic number of columns
         columnWrapperStyle={{
           justifyContent: "space-between",
           gap: 16,

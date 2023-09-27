@@ -14,6 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
 import ButtonComponent from "../component/common/ButtonComponent";
 import HeaderComponent from "../component/common/Header";
+import { showToast } from "../constant/ShowToast";
 import { formatCurrency } from "../constant/currencyFormatter";
 import { globalStyles } from "../constant/globalStyles";
 import { productData } from "../dummData/productData";
@@ -233,10 +234,7 @@ const IndividualProduct = ({ navigation, route }: Props) => {
               {productInfo.map((item, index) => {
                 // add border bottom to the last index
                 const lastIndex = productInfo.length - 1;
-                console.log(
-                  "🚀 ~ file: IndivitualProduct.tsx:236 ~ {productInfo.map ~ lastIndex:",
-                  lastIndex
-                );
+
                 return (
                   <TouchableOpacity
                     onPress={() => {
@@ -287,7 +285,10 @@ const IndividualProduct = ({ navigation, route }: Props) => {
             className="flex-row justify-between mt-[30px] items-center"
           >
             <Pressable
-              onPress={() => handleDecreaseQuantity(eachProduct.id)}
+              onPress={() => {
+                handleDecreaseQuantity(eachProduct.id);
+                  showToast("Item removed to cart", "white", "red");
+              }}
               className="bg-white p-2 rounded-[8px]"
             >
               <Entypo
@@ -305,7 +306,10 @@ const IndividualProduct = ({ navigation, route }: Props) => {
               {productQuantity}
             </Text>
             <Pressable
-              onPress={() => handleIncreaseQuantity(eachProduct)}
+              onPress={() => {
+                handleIncreaseQuantity(eachProduct);
+                showToast("Item added to cart", "white", "black");
+              }}
               className="bg-white p-2 rounded-[8px]"
             >
               <Entypo name="plus" size={24} color="black" />
